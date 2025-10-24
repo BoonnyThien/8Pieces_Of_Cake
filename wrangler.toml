@@ -1,0 +1,7 @@
+name = "8pieces-of-cake"
+main = "./functions"
+compatibility_date = "2025-10-24"
+
+[vars]
+# Add any environment variables here, for example D1 bindings
+# D1_ACCOUNT_ID = "your-d1-account-id"
