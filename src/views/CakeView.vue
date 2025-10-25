@@ -1,37 +1,35 @@
-<script setup>
-import { ref } from 'vue';
-import CakeBase from '../components/canvas/CakeBase.vue';
-import CakePiece from '../components/canvas/CakePiece.vue';
-
-// Định nghĩa vị trí cho 8 miếng bánh trên tầng 2 (bán kính ~1.8, chiều cao ~0.75)
-const radius = 1.8;
-const height = 0.85; // Nhô lên một chút so với tầng 2
-const cakePieces = ref([
-  // Tính toán vị trí 8 miếng bằng vòng lặp
-  ...Array(8).fill(0).map((_, i) => {
-    const angle = (i / 8) * Math.PI * 2; // Góc (radian)
-    return {
-      name: `piece-${i}`, // Tên định danh
-      position: [Math.cos(angle) * radius, height, Math.sin(angle) * radius],
-      rotation: [0, -angle, 0], // Xoay miếng bánh hướng ra ngoài
-    };
-  })
-]);
-</script>
 <template>
   <TresGroup>
-    <CakeBase />
+    <TresMesh :rotation-x="-Math.PI / 2" :position-y="-0.05">
+      <TresCylinderGeometry :args="[2.2, 2.2, 0.1, 64]" />
+      <TresMeshStandardMaterial color="#FFFFFF" :metalness="0.1" :roughness="0.2" />
+    </TresMesh>
 
     <Suspense>
-      <CakePiece
-        v-for="(piece, index) in cakePieces"
-        :key="piece.name"
-        :pieceName="piece.name"
-        :position="piece.position"
-        :rotation="piece.rotation"
-        :scale="[0.5, 0.5, 0.5]" 
-      />
+      <CakePieceLove    :rotation-y="angle(0)" :draco="true" />
+      <!-- <CakePieceJoy     :rotation-y="angle(1)" :draco="true" />
+      <CakePieceHope    :rotation-y="angle(2)" :draco="true" />
+      <CakePieceKindness :rotation-y="angle(3)" :draco="true" />
+      <CakePieceLuck    :rotation-y="angle(4)" :draco="true" />
+      <CakePiecePassion :rotation-y="angle(5)" :draco="true" />
+      <CakePiecePeace   :rotation-y="angle(6)" :draco="true" />
+      <CakePieceCourage :rotation-y="angle(7)" :draco="true" /> -->
     </Suspense>
     
   </TresGroup>
 </template>
+
+<script setup>
+// Import 8 component miếng bánh
+import CakePieceLove from '../components/canvas/CakePieceLove.vue';
+// import CakePieceJoy from '../components/canvas/CakePieceJoy.vue';
+// import CakePieceHope from '../components/canvas/CakePieceHope.vue';
+// import CakePieceKindness from '../components/canvas/CakePieceKindness.vue';
+// import CakePieceLuck from '../components/canvas/CakePieceLuck.vue';
+// import CakePiecePassion from '../components/canvas/CakePiecePassion.vue';
+// import CakePiecePeace from '../components/canvas/CakePiecePeace.vue';
+// import CakePieceCourage from '../components/canvas/CakePieceCourage.vue';
+
+// Hàm trợ giúp tính góc (mỗi góc 45 độ)
+const angle = (i) => (i / 8) * Math.PI * 2;
+</script>

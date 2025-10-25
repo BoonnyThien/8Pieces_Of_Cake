@@ -1,44 +1,65 @@
 <template>
-  <primitive 
-    v-if="model"
-    ref="rootRef"
-    :object="model"
-    :position="position"
-    :scale="scale"
-    :rotation="rotation"
-  />
+  <TresGroup 
+    ref="rootRef" 
+    :position="position" 
+    :rotation="rotation" 
+    :scale="scale" 
+    :name="pieceName"
+  >
+    
+    <CakeBase 
+      :color1="loveColors.color1" 
+      :color2="loveColors.color2" 
+      :color3="loveColors.color3" 
+    />
+    
+    <Suspense v-if="loveDecorPath">
+      <GLTFModel 
+        :path="loveDecorPath" 
+        :position="[0.8, 0.8, 0.4]" 
+        :scale="[0.2, 0.2, 0.2]" 
+        :draco="draco" 
+      />
+    </Suspense>
+  
+  </TresGroup>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { useGLTF } from '@tresjs/cientos';
+import { GLTFModel } from '@tresjs/cientos'; // GLTFModel là từ cientos
+import CakeBase from './CakeBase.vue'; 
+
+// SỬA LỖI Ở ĐÂY: useTexture là từ CIENTOS, không phải CORE
+import { useTexture } from '@tresjs/core'; 
 
 const props = defineProps({
+  pieceName: { type: String, default: 'piece-love' }, 
   position: Array,
   scale: Array,
   rotation: Array,
-  draco: { type: Boolean, default: false }
+  draco: { type: Boolean, default: false },
 });
 
-// Tải model GLB cho miếng bánh "Love"
-// const { scene: model } = await useGLTF(
-//   '/models/Piece_Love.glb', 
-//   { draco: props.draco }
-// );
+// --- Tùy chỉnh cho miếng "Love" ---
 
+// Dùng đường dẫn tuyệt đối từ thư mục /public/
+const { map: strawberryTexture } = await useTexture({ 
+  map: '/textures/strawberry.jpg' 
+});
 
-// if (model) {
-//   model.name = 'piece-love'; 
-//   model.traverse((child) => {
-//     if (child.isMesh) {
-//       child.name = 'piece-love'; 
-//     }
-//   });
-// }
+// Logic gán màu của bạn đã chính xác
+const loveColors = {
+  color1: '#A0522D', 
+  color2: '#FADADD', 
+  color3: strawberryTexture // Gán texture đã tải
+};
 
-// Expose Object3D
-const rootRef = ref(null); // Ref này sẽ trỏ vào <primitive>
+const loveDecorPath = null; 
+
+// Expose group gốc
+const rootRef = ref(null);
 defineExpose({
-  getObject3D: () => rootRef.value // <primitive> chính là Object3D
+  getObject3D: () => rootRef.value
 });
 </script>
