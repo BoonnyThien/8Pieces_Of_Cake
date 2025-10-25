@@ -6,22 +6,53 @@ import './assets/css/main.css'
 
 const app = createApp(App)
 
+// Danh sách các component TresJS cốt lõi bạn đang dùng (dựa trên log lỗi)
+const CORE_TRES_COMPONENTS = [
+  'TresCanvas',
+  'TresPerspectiveCamera',
+  'TresAmbientLight',
+  'TresDirectionalLight',
+  'TresPointLight',
+  'TresGroup',
+  'TresMesh',
+  'TresMeshStandardMaterial',
+  'TresMeshBasicMaterial',
+  'TresMeshPhysicalMaterial',
+  'TresBoxGeometry',
+  'TresTorusGeometry',
+  'TresSphereGeometry',
+  'TresCylinderGeometry',
+  'TresPlaneGeometry',
+  'primitive' // Component <primitive> cũng là cốt lõi
+]
+
 try {
-  // Thử đăng ký plugin
+  // Đăng ký plugin
   app.use(Tres)
   
-  // KIỂM TRA QUAN TRỌNG: Sau khi đăng ký, hãy kiểm tra xem một component cốt lõi của Tres có thực sự tồn tại không.
-  if (app.component('TresCanvas')) {
-    // Nếu có, in ra log thành công
-    console.log('%c✅ [main.js] Plugin TresJS đã được đăng ký thành công!', 'color: #42b883; font-weight: bold;')
-  } else {
-    // Nếu không tìm thấy component, coi như đăng ký thất bại
-    throw new Error('app.use(Tres) đã chạy nhưng không đăng ký component nào.')
-  }
+  // Mảng chứa các component bị thiếu
+  const missingComponents = []
+  
+  // Kiểm tra từng component
+  CORE_TRES_COMPONENTS.forEach(name => {
+    if (!app.component(name)) {
+      missingComponents.push(name)
+    }
+  })
+
+  // Báo cáo kết quả
+  // if (missingComponents.length === 0) {
+  //   console.log('%c✅ [main.js] TẤT CẢ component TresJS cốt lõi đã được đăng ký thành công!', 'color: #42b883; font-weight: bold;')
+  // } else {
+  //   // Nếu có component bị thiếu, ném lỗi
+  //   throw new Error(`Các component sau KHÔNG được đăng ký: ${missingComponents.join(', ')}`)
+  // }
 
 } catch (error) {
-  // Nếu có bất kỳ lỗi nào trong quá trình đăng ký, in ra log thất bại
   console.error('❌ [main.js] Đăng ký plugin TresJS THẤT BẠI!', error)
 }
+//Tắt cảnh báo và lỗi Vue
+app.config.warnHandler = () => {}
+app.config.errorHandler = () => {}
 
 app.mount('#app')

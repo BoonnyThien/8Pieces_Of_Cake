@@ -6,6 +6,7 @@ import { TextureLoader,
           ClampToEdgeWrapping, 
           LinearFilter
         } from 'three'
+import { TresCanvas } from '@tresjs/core'
 
 const moonMesh = ref(null)
 const moonTexture = new TextureLoader().load('/textures/moon.png', (texture) => {

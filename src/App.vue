@@ -2,7 +2,6 @@
   <LoadingScreen v-if="isLoading" />
 
   <div v-else>
-    <Stars />
 
     <UiOverlay
       v-if="showUi"
@@ -12,29 +11,21 @@
       @changeBackground="handleChangeBackground"
     />
     <ToggleUiButton @toggleUi="toggleUiVisibility" />
-
+    
     <ThreeScene :background-color="currentBackgroundColor">
+      <Stars />
       <Moon ref="moon" />
-      
-      <Suspense>
-        <CakeView />
+        <Suspense>
+          <CakeView />
 
-        <template #fallback>
-          <!-- <TresGroup :position="[0, 0, 0]">
-            <TresMesh :rotation="[0, spinnerRotation, 0]">
-              <TresTorusGeometry :args="[1, 0.2, 16, 100]" />
-              <TresMeshStandardMaterial :color="0xdddddd" :roughness="0.6" :metalness="0.5" />
-            </TresMesh>
-            <TresPointLight :position="[0, 2, 2]" :intensity="100" :color="0xffffff" />
-          </TresGroup> -->
-        </template>
-      </Suspense>
+        
+        </Suspense>
     </ThreeScene>
   </div>
 </template>
 
 <script setup>
-import { useRenderLoop } from '@tresjs/core';
+import { TresCanvas, useRenderLoop } from '@tresjs/core';
 import { ref, computed, onMounted } from 'vue';
 import { useUI } from './composables/useUI.js';
 // Import components

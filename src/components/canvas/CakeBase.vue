@@ -1,8 +1,11 @@
+@ts-ignore
 <template>
+  @ts-ignore
   <TresGroup :position="position" :scale="scale" :rotation="rotation">
     
     <TresMesh :position-y="0.25">
-      <TresCylinderGeometry :args="[2.5, 2.5, 0.5, 64]" /> <TresMeshStandardMaterial color="#FFFACD" :roughness="0.8" />
+      <TresCylinderGeometry :args="[2.5, 2.5, 0.5, 64]" /> 
+      <TresMeshStandardMaterial color="#FFFACD" :roughness="0.8" />
     </TresMesh>
     
     <TresMesh :position-y="0.75">

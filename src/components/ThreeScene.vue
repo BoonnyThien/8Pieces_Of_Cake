@@ -1,20 +1,29 @@
 <template>
   <TresCanvas shadows window-size :clear-color="backgroundColor" alpha>
     <TresPerspectiveCamera :position="[0, 5, 15]" :look-at="[0, 0, 0]" />
-    <OrbitControls :enable-damping="true" :damping-factor="0.05" />
 
-    <TresAmbientLight :intensity="0.5" />
-    <TresDirectionalLight :position="[5, 5, 5]" :intensity="1.5" cast-shadow />
-
-    <slot></slot>
+    <!-- 👇 Gói các đối tượng cần context vào 1 nhóm -->
+    <TresGroup>
+      <TresAmbientLight :intensity="0.5" />
+      <TresDirectionalLight :position="[5, 5, 5]" :intensity="1.5" cast-shadow />
+      <OrbitControls v-if="ready" :enable-damping="true" :damping-factor="0.05" />
+      <slot></slot>
+    </TresGroup>
   </TresCanvas>
 </template>
 
 <script setup>
-import { OrbitControls } from '@tresjs/cientos';
+import { ref, onMounted } from 'vue'
+import { OrbitControls } from '@tresjs/cientos'
 
-// DEFINE THE backgroundColor PROP
+// props
 defineProps({
-  backgroundColor: { type: String, default: '#000000' } // Default to black
-});
+  backgroundColor: { type: String, default: '#000000' },
+})
+
+// ✅ đảm bảo chỉ mount OrbitControls sau khi canvas sẵn sàng
+const ready = ref(false)
+onMounted(() => {
+  ready.value = true
+})
 </script>
