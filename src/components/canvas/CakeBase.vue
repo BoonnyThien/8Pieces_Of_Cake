@@ -1,62 +1,86 @@
 <template>
-  <TresGroup :position="position" :scale="scale" :rotation="rotation">
-    
+  <TresGroup 
+    ref="rootRef" 
+    :position="position" 
+    :rotation="rotation" 
+    :scale="scale" 
+    :name="pieceName"
+  >
     <TresGroup > 
       
-      <TresMesh :position-y="0" :rotation-x="Math.PI/2">
+      <TresMesh :position-y="0" :rotation-x="Math.PI/2" >
         <TresExtrudeGeometry :args="[shape, extrudeSettings1]" />
-        <TresMeshStandardMaterial v-if="isTexture(color1)" :map="color1" :roughness="0.9" />
-        <TresMeshStandardMaterial v-else :color="color1" :roughness="0.9" />
+        <TresMeshStandardMaterial :color="color1" :roughness="0.9" />
       </TresMesh>
       
-      <TresMesh :position-y="heightLayer1+ heightLayer2" :rotation-x="Math.PI/2" >
+      <TresMesh :position-y="heightLayer1" :rotation-x="Math.PI/2" >
         <TresExtrudeGeometry :args="[shape, extrudeSettings2]" />
-       <TresMeshStandardMaterial v-if="isTexture(color2)" :map="color2" :roughness="0.7" />
-        <TresMeshStandardMaterial v-else :color="color2" :roughness="0.7" />
+        <TresMeshStandardMaterial :color="color2" :roughness="0.7" />
       </TresMesh>
 
-      <TresMesh :position-y="heightLayer1" :rotation-x="Math.PI/2" >
+      <TresMesh :position-y="heightLayer1 + heightLayer2" :rotation-x="Math.PI/2">
         <TresExtrudeGeometry :args="[shape, extrudeSettings3]" />
-       <TresMeshStandardMaterial v-if="isTexture(color3)" :map="color3" :roughness="0.7" />
-        <TresMeshStandardMaterial v-else :color="color3" :roughness="0.7" />
+        <TresMeshStandardMaterial :map="strawberryTexture" :roughness="0.7" />
       </TresMesh>
     </TresGroup>
+
+    <Suspense v-if="loveDecorPath">
+      <GLTFModel 
+        :path="loveDecorPath" 
+        :position="[0.8, 0.8, 0.4]" 
+        :scale="[0.2, 0.2, 0.2]" 
+        :draco="draco" 
+      />
+    </Suspense>
+  
   </TresGroup>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
+import { GLTFModel } from '@tresjs/cientos';
+import { useTexture } from '@tresjs/core';
 import * as THREE from 'three';
-import { computed } from 'vue';
 
 const props = defineProps({
-  position: { type: Array, default: () => [0, 0, 0] },
-  scale: { type: Array, default: () => [1, 1, 1] },
-  rotation: { type: Array, default: () => [0, 0, 0] },
-  
-  // Props để nhận màu sắc hoặc textures (sẽ được CakePiece truyền xuống)
-  color1: { type: [String, Object], default: '#A0522D' }, // Vỏ bánh
-  color2: { type: [String, Object], default: '#FFEFD5' }, // Lớp 1
-  color3: { type: [String, Object], default: '#FFFACD' }, // Lớp 2
+  pieceName: { type: String, default: 'piece-love' }, 
+  position: {type : Array , default: ()=>[0,0,0]},
+  scale: {type : Array, default : ()=>[1,1,1]},
+  rotation: {type : Array, default : ()=>[0,0,0]},
+  draco: { type: Boolean, default: false },
+  texturePath: { type: String, default: './textures/strawberry.jpg' }
 });
 
-// Định nghĩa kích thước
-const radius = 2.0; // Bán kính của cả cái bánh
-const heightLayer1 = 0.2  ;
+// --- Tùy chỉnh cho miếng "Love" (Gộp logic vào đây) ---
+const color1 = '#A0522D';
+const color2 = '#FADADD';
+const loveDecorPath = null; 
+
+// Tải texture TRỰC TIẾP bên trong component này
+const { map: strawberryTexture } = await useTexture({map : props.texturePath });
+
+// --- Logic Hình dạng (Lấy từ CakeBase.vue) ---
+const radius = 2.0; 
+const heightLayer1 = 0.2;
 const heightLayer2 = 0.3;
 const heightLayer3 = 0.2;
 
-// 1. Định nghĩa Shape (hình nêm 2D)
 const shape = computed(() => {
   const s = new THREE.Shape();
-  s.moveTo(0, 0); // Bắt đầu ở tâm
+  s.moveTo(0, 0); 
   s.arc(0, 0, radius, 0, Math.PI / 4, false); 
-  s.lineTo(0, 0); // Quay về tâm
+  s.lineTo(0, 0); 
   return s;
 });
-// Đây là cách chúng ta tạo "tấm ngáng" - khối sẽ đặc
+
 const extrudeSettings1 = { depth: heightLayer1, bevelEnabled: false };
 const extrudeSettings2 = { depth: heightLayer2, bevelEnabled: false };
 const extrudeSettings3 = { depth: heightLayer3, bevelEnabled: false };
+// --- Hết Logic Hình dạng ---
 
-const isTexture = (prop) => prop && typeof prop === 'object' && prop.isTexture;
+// Expose group gốc
+const rootRef = ref(null);
+defineExpose({
+  getObject3D: () => rootRef.value
+});
 </script>

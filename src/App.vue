@@ -16,7 +16,7 @@
       <Stars />
       <Moon ref="moon" />
         <Suspense>
-          <CakeBase/>
+          <CakeView/>
         </Suspense>
     </ThreeScene>
   </div>
@@ -36,8 +36,6 @@ import ToggleUiButton from './components/ui/ToggleUiButton.vue';
 
 // IMPORT VIEW MỚI
 import CakeView from './views/CakeView.vue';
-import CakePiece from './components/canvas/CakePiece.vue';
-import CakeBase from './components/canvas/CakeBase.vue';
 
 // --- Logic Spinner (Tái sử dụng) ---
 const spinnerRotation = ref(0);
