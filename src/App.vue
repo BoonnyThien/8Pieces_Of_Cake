@@ -14,18 +14,21 @@
     
     <ThreeScene :background-color="currentBackgroundColor">
       <Stars />
-      <Moon ref="moon" />
+      <Moon ref="moonRef" />
         <Suspense>
-          <CakeView/>
+          <CakeView 
+          @piece-click="handlePieceClick" 
+          @swap-request="handleSwapItems"
+        />
         </Suspense>
     </ThreeScene>
   </div>
 </template>
 
 <script setup>
-import { TresCanvas, useRenderLoop } from '@tresjs/core';
 import { ref, computed, onMounted } from 'vue';
 import { useUI } from './composables/useUI.js';
+import { useThrottledLoop } from './composables/useThrottledLoop.js';
 // Import components
 import LoadingScreen from './components/ui/LoadingScreen.vue';
 import UiOverlay from './components/ui/UiOverlay.vue';
@@ -37,15 +40,6 @@ import ToggleUiButton from './components/ui/ToggleUiButton.vue';
 // IMPORT VIEW MỚI
 import CakeView from './views/CakeView.vue';
 
-// --- Logic Spinner (Tái sử dụng) ---
-const spinnerRotation = ref(0);
-const { onLoop } = useRenderLoop();
-onLoop(({ delta }) => {
-  if (!isLoading.value) {
-     spinnerRotation.value += delta * 2;
-  }
-});
-
 // --- Background Color Logic (Tái sử dụng) ---
 const backgroundColors = ref(['#000000', '#121212','#FAFAFA']);
 const currentBgIndex = ref(0);
@@ -55,17 +49,27 @@ const handleChangeBackground = () => {
 };
 
 // --- UI Logic (Tái sử dụng) ---
-const moon = ref(null);
+const moonRef = ref(null);
 const isLoading = ref(true);
+const isAnimating = ref(false)
 const showUi = ref(true);
 const toggleUiVisibility = () => showUi.value = !showUi.value;
 
 const { currentGreeting, greetings, changeGreeting, initAnimations } = useUI();
 
 // --- Logic Swap MỚI (sẽ được thay bằng Raycasting sau) ---
+const handlePieceClick = (pieceData) => {
+  // Khi CakeView báo 1 miếng bánh được click, 
+  // App.vue sẽ bảo useUI hiển thị thông tin
+  console.log('App.vue nhận được click:', pieceData.name);
+  showPieceInfo(pieceData); // Cập nhật UI 2D
+};
+
+// Hàm này có thể không cần thiết nữa nếu click trực tiếp, 
+// nhưng giữ lại nếu nút "Ngẫu Nhiên" vẫn tồn tại
 const handleSwapItems = () => {
-  console.log("Nút 'Ngẫu Nhiên' đã được nhấn, sẽ thay bằng logic raycast sau.");
-  // Tạm thời chưa làm gì
+  console.log("App.vue: Nút Ngẫu Nhiên được nhấn. Sẽ báo cho CakeView...");
+  // Logic này sẽ được chuyển vào CakeView
 };
 
 onMounted(() => {
@@ -73,6 +77,20 @@ onMounted(() => {
     isLoading.value = false;
     console.log("3D Scene loaded");
   }, 2000);
+});
+
+const spinnerRotation = ref(0);
+const currentRotation = ref([0, 0, 0]);
+
+const { onLoop } = useThrottledLoop();
+onLoop(({ delta }) => {
+  if (!isLoading.value) { 
+    spinnerRotation.value += delta * 2; 
+
+    if (!isAnimating.value) {
+      currentRotation.value[1] += delta * 0.5; 
+    }
+  }
 });
 </script>
 

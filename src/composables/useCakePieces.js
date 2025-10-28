@@ -1,26 +1,33 @@
 import { ref } from 'vue'
-import { cakePieces as defaultPieces } from '@/data/cakePieces'
+import { cakePiecesData } from '@/data/cakePieces' // Import data bánh của bạn
 
-// Provides list of pieces and a click handler that can call API or emit events
-export const useCakePieces = () => {
-  const pieces = ref(defaultPieces)
+export function useCakePieces() {
+  const pieces = ref(cakePiecesData) // Giữ danh sách data
   const selected = ref(null)
 
-  const onPieceClick = async (piece) => {
-    selected.value = piece
-    // Send click to backend endpoint (functions/click)
+  // Hàm này giờ nhận tên (string) của miếng bánh
+  const onPieceClick = async (pieceName) => { 
+    
+    // Tìm data của miếng bánh dựa trên tên
+    const pieceData = pieces.value.find(p => p.name === pieceName);
+    if (!pieceData) return;
+
+    selected.value = pieceData;
+    
+    // GỌI ENDPOINT CỦA CLOUDFLARE WORKER
     try {
-      await fetch('/.netlify/functions/click', {
+      // Lưu ý: '/api/click' là đường dẫn mặc định, 
+      // bạn có thể cần chỉnh lại theo file wrangler.toml
+      await fetch('/api/click', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pieceId: piece.id })
+        body: JSON.stringify({ pieceId: pieceName }) // Gửi 'piece-love', 'piece-joy', v.v.
       })
     } catch (err) {
-      // ignore errors in dev
-      console.warn('Failed to record click', err)
+      // Bỏ qua lỗi khi ở local dev (nếu worker chưa chạy)
+      console.warn('Failed to record click to Cloudflare Worker:', err)
     }
   }
-
   
   return { pieces, selected, onPieceClick }
 }

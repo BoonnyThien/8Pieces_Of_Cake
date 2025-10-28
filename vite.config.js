@@ -7,7 +7,13 @@ import { templateCompilerOptions } from '@tresjs/core'
 
 export default defineConfig({
   plugins: [
-    vue(),
+    vue({
+    template: {
+      compilerOptions: {
+        isCustomElement: tag => tag === 'TresSphereGeometry'
+          }
+        }
+      }),
     VueDevTools(), 
   ],
   resolve: {
