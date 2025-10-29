@@ -1,6 +1,6 @@
 <template>
   <TresGroup 
-    ref="rootRef" 
+    ref="LovePieceRef" 
     :position="position" 
     :rotation="rotation" 
     :scale="scale" 

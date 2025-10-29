@@ -16,10 +16,9 @@
       <Stars />
       <Moon ref="moonRef" />
         <Suspense>
-          <CakeView 
-          @piece-click="handlePieceClick" 
-          @swap-request="handleSwapItems"
-        />
+          <CakeView ref="cakeViewRef" @piece-selected="handlePieceSelected" />
+          
+          <!-- <TresRaycaster/> -->
         </Suspense>
     </ThreeScene>
   </div>
@@ -39,7 +38,7 @@ import ToggleUiButton from './components/ui/ToggleUiButton.vue';
 
 // IMPORT VIEW MỚI
 import CakeView from './views/CakeView.vue';
-
+import TresRaycaster from './components/TresRaycaster.vue';
 // --- Background Color Logic (Tái sử dụng) ---
 const backgroundColors = ref(['#000000', '#121212','#FAFAFA']);
 const currentBgIndex = ref(0);
@@ -58,11 +57,20 @@ const toggleUiVisibility = () => showUi.value = !showUi.value;
 const { currentGreeting, greetings, changeGreeting, initAnimations } = useUI();
 
 // --- Logic Swap MỚI (sẽ được thay bằng Raycasting sau) ---
-const handlePieceClick = (pieceData) => {
-  // Khi CakeView báo 1 miếng bánh được click, 
-  // App.vue sẽ bảo useUI hiển thị thông tin
-  console.log('App.vue nhận được click:', pieceData.name);
-  showPieceInfo(pieceData); // Cập nhật UI 2D
+const cakeViewRef = ref(null); // Ref để gọi hàm trong CakeView
+
+// --- Xử lý sự kiện ---
+const handlePieceSelected = (pieceData) => {
+  // Khi CakeView báo 1 miếng bánh được chọn, App.vue cập nhật UI 2D
+  console.log('App.vue nhận được data:', pieceData.name);
+  showPieceInfo(pieceData); // Cập nhật UI 2D (ví dụ: hiển thị description)
+};
+const triggerCakeSwap = () => {
+  // Khi nhấn nút "Ngẫu Nhiên"
+  if (cakeViewRef.value) {
+    // Tạm thời reset bánh về vị trí cũ
+    cakeViewRef.value.resetCake(); 
+  }
 };
 
 // Hàm này có thể không cần thiết nữa nếu click trực tiếp, 

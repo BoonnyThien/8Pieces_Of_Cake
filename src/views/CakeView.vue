@@ -1,61 +1,30 @@
 <template>
-  <TresGroup>
-    <TresMesh :rotation-x="-Math.PI " :position-y="-0.2">
+  <TresGroup :position="[0, -1, 0]" ref="piecesGroupRef"> 
+    
+    <TresMesh :rotation-x="-Math.PI / 2" :position-y="-0.2">
       <TresCylinderGeometry :args="[2.2, 2.2, 0.1, 64]" />
       <TresMeshStandardMaterial color="#FFFFFF" :metalness="0.1" :roughness="0.2" />
     </TresMesh>
 
-    <TresRaycaster @click="handleRaycastClick" />
+    <TresGroup>
+      <CakePieceLove    name="piece-love"    :rotation-y="angle(0)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePieceJoy     name="piece-joy"     :rotation-y="angle(1)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePieceHope    name="piece-hope"    :rotation-y="angle(2)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePieceKindness name="piece-kindness" :rotation-y="angle(3)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePieceLuck    name="piece-luck"    :rotation-y="angle(4)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePiecePassion name="piece-passion" :rotation-y="angle(5)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePieceCourage name="piece-courage" :rotation-y="angle(6)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+      <CakePiecePeace   name="piece-peace"   :rotation-y="angle(7)" :draco="true" ref="setPieceRef" @click="handlePieceClick" />
+    </TresGroup>
     
-    <Suspense>
-      <CakePieceLove    :rotation-y="angle(0)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePieceJoy     :rotation-y="angle(1)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePieceHope     :rotation-y="angle(2)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePieceKindness     :rotation-y="angle(3)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePieceLuck     :rotation-y="angle(4)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePiecePassion     :rotation-y="angle(5)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePieceCourage     :rotation-y="angle(6)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-    <Suspense>
-      <CakePiecePeace :rotation-y="angle(7)" :draco="true" />
-      <template #fallback>
-        </template>
-    </Suspense>
-
   </TresGroup>
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
-import { TresRaycaster } from '@tresjs/core'; // Import Raycaster
-import { useThrottledLoop } from '../composables/useThrottledLoop.js'; // Import loop giảm lag
-import { useCakePieces } from '../composables/useCakePieces.js'; // Import logic data/API
+import { ref, shallowRef, onMounted, onUnmounted, onBeforeUpdate } from 'vue';
+import { useTres, useRenderLoop } from '@tresjs/core'; 
+import * as THREE from 'three';
+import { useCakePieces } from '../composables/useCakePieces.js';
 import gsap from 'gsap';
 
 // Import 8 component miếng bánh
@@ -68,88 +37,160 @@ import CakePiecePassion from '../components/canvas/CakePiecePassion.vue';
 import CakePiecePeace from '../components/canvas/CakePiecePeace.vue';
 import CakePieceCourage from '../components/canvas/CakePieceCourage.vue';
 
-// Định nghĩa sự kiện sẽ gửi lên App.vue
-const emit = defineEmits(['piece-click', 'swap-request']);
+// --- Bắt đầu code giống file mẫu Rubik ---
 
-// Lấy hàm gọi API từ composable
-const { pieces, onPieceClick } = useCakePieces();
+// SỬA Ở ĐÂY: Lấy raycaster và camera từ useTres()
+const { raycaster, camera } = useTres(); 
+const piecesGroupRef = ref(); // Ref cho <TresGroup> chứa bánh
+const pointer = new THREE.Vector2(); 
+let currentIntersect = null; 
 
-// Mảng chứa ref của 8 miếng bánh
-const pieceRefs = ref([]); 
-// Ref cho miếng bánh đang active (để tự xoay)
-const activePieceObject = ref(null); 
-const isAnimating = ref(false);
+// THIẾU: Hàm xử lý di chuyển chuột (để cập nhật 'pointer')
+const onPointerMove = (event) => {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+};
 
-// Vị trí
-const centerPosition = { x: 0, y: 1.0, z: 2.5 }; // Vị trí zoom
-const originalPositions = ref({}); // Lưu vị trí gốc
+// --- Kết thúc code giống file mẫu ---
 
-// Hàm trợ giúp tính góc (mỗi góc 45 độ)
-const angle = (i) => (i / 8) * Math.PI * 2;
+// --- Logic riêng của dự án bánh kem (Giữ nguyên) ---
+const emit = defineEmits(['piece-selected']);
+const { pieces, recordClick } = useCakePieces(); 
 
-// Lưu vị trí gốc khi component mount
-onMounted(() => {
-  pieceRefs.value.forEach(instance => {
-    const object = instance.getObject3D ? instance.getObject3D() : null;
-    if(object) {
-      originalPositions.value[object.name] = object.position.clone();
-    }
-  });
+const pieceRefs = ref([]);
+// THÊM: Hàm để gán ref
+const setPieceRef = (el) => {
+  if (el) {
+    pieceRefs.value.push(el);
+  }
+};
+
+// THÊM: Dọn dẹp mảng ref trước mỗi lần update
+onBeforeUpdate(() => {
+  pieceRefs.value = [];
 });
 
-// Hàm xử lý click 3D (Raycaster)
-const handleRaycastClick = (intersection) => {
-  if (!intersection.length || isAnimating.value) return; 
+const activePieceObject = ref(null); 
+const isAnimating = ref(false);
+const centerPosition = { x: 0, y: 1.0, z: 2.5 }; 
+const originalPositions = {}; 
+const angle = (i) => (i / 8) * Math.PI * 2; 
 
-  const clickedObject = intersection[0].object;
-  const pieceName = clickedObject.name; // Ví dụ: "piece-love"
+onMounted(() => {
+  // Lưu vị trí gốc (Giống code cũ)
+  setTimeout(() => { 
+    pieceRefs.value.forEach((instance) => {
+      const object = instance?.getObject3D ? instance.getObject3D() : null;
+      if (object) {
+        originalPositions[object.name] = object.position.clone();
+      }
+    });
+  }, 200);
+
+  // THÊM: Listener cho di chuyển chuột (Giống code mẫu)
+  window.addEventListener('pointermove', onPointerMove);
+});
+
+onUnmounted(() => {
+  // THÊM: Xóa listener (Giống code mẫu)
+  window.removeEventListener('pointermove', onPointerMove);
+});
+
+// Xử lý click (được gọi từ @click trên component - Giống code mẫu)
+const handlePieceClick = (event) => {
+  if (isAnimating.value) return; 
+
+  console.log('CakeView: Clicked!', event.object.name); // Log để kiểm tra
+
+  // Tìm group gốc của miếng bánh
+  let clickedObject = event.object; 
+  while (clickedObject.parent && !clickedObject.name.startsWith('piece-')) {
+    clickedObject = clickedObject.parent;
+  }
   
-  if (!pieceName || !pieceName.startsWith('piece-')) return;
+  const pieceId = clickedObject.name;
+  if (!pieceId || !pieceId.startsWith('piece-')) return;
   
-  // Lấy data của miếng bánh
-  const pieceData = pieces.value.find(p => p.name === pieceName);
+  // Gọi logic animation
+  animateAndEmit(clickedObject, pieceId);
+};
+
+// Hàm animation (Giống code cũ)
+const animateAndEmit = (clickedObject, pieceId) => {
+  const pieceData = pieces.value.find(p => p.id === pieceId);
   if (!pieceData) return;
 
   isAnimating.value = true;
+  
+  recordClick(pieceId); // Gọi API
+  emit('piece-selected', pieceData); // Báo cho App.vue
 
-  // 1. GỌI API (Cloudflare)
-  onPieceClick(pieceName); 
+  // Reset miếng bánh cũ
+  if (activePieceObject.value && activePieceObject.value.name !== pieceId) {
+    const oldPos = originalPositions[activePieceObject.value.name];
+    gsap.to(activePieceObject.value.position, { ...oldPos, duration: 0.5, ease: 'power2.inOut' });
+  }
+  activePieceObject.value = clickedObject; // Lưu miếng mới
 
-  // 2. GỬI SỰ KIỆN LÊN APP.VUE (để cập nhật UI 2D)
-  emit('piece-click', pieceData); 
-
-  // 3. ANIMATION
-  // 3a. Di chuyển miếng bánh được click
+  // Animate miếng bánh mới
   gsap.to(clickedObject.position, {
     ...centerPosition,
     duration: 1.0,
-    ease: 'elastic.out(1, 0.5)'
-  });
-  activePieceObject.value = clickedObject; // Lưu lại để tự xoay
-
-  // 3b. (Tùy chọn) Ẩn hoặc di chuyển các miếng bánh khác
-  pieceRefs.value.forEach(instance => {
-    const object = instance.getObject3D ? instance.getObject3D() : null;
-    if (object && object.name !== pieceName) {
-      gsap.to(object.position, {
-        y: -1, // Ví dụ: ẩn xuống
-        duration: 0.5,
-        ease: 'power2.in'
-      });
+    ease: 'elastic.out(1, 0.5)',
+    onComplete: () => {
+      isAnimating.value = false;
     }
   });
-  
-  // (Cần thêm logic để reset các miếng bánh về vị trí cũ)
-  
-  setTimeout(() => isAnimating.value = false, 1000); 
 };
 
-// Logic tự xoay (đã chuyển từ App.vue)
-const { onLoop } = useThrottledLoop();
+// --- Logic Vòng lặp Render (Giống file mẫu + Tự xoay) ---
+const { onLoop } = useRenderLoop();
+
+// Hàm kiểm tra hover (Giống file mẫu)
+const checkIntersection = () => {
+  // Sửa lỗi: dùng camera.value, raycaster.value, piecesGroupRef.value
+  if (!camera?.value || !raycaster?.value || !piecesGroupRef.value) return;
+  
+  raycaster.value.setFromCamera(pointer, camera.value);
+
+  // Lấy các object 3D từ group
+  const allPieceObjects = pieceRefs.value.map(inst => inst.getObject3D ? inst.getObject3D() : null).filter(Boolean);
+  if (allPieceObjects.length === 0) return;
+
+  const intersects = raycaster.value.intersectObjects(allPieceObjects, true);
+
+  // Reset màu hover cũ (Bạn có thể tùy chỉnh)
+  if (currentIntersect) {
+    // (Tạm thời không làm gì để tránh xung đột màu)
+  }
+
+  // Đổi màu hover mới (Bạn có thể tùy chỉnh)
+  if (intersects.length > 0) {
+    // (Tạm thời không làm gì để tránh xung đột màu)
+    currentIntersect = intersects[0];
+  } else {
+    currentIntersect = null;
+  }
+};
+
 onLoop(({ delta }) => {
-  // Nếu có 1 miếng bánh đang active VÀ không có animation GSAP nào đang chạy
+  // Chạy check hover mỗi frame (Giống file mẫu)
+  checkIntersection(); 
+  
+  // Tự xoay miếng bánh active (Logic cũ của bạn)
   if (activePieceObject.value && !isAnimating.value) {
     activePieceObject.value.rotation.y += delta * 0.5;
+  }
+});
+
+// --- Expose Hàm (Giữ nguyên) ---
+defineExpose({
+  resetCake: () => {
+     if (activePieceObject.value) {
+        const originalPos = originalPositions[activePieceObject.value.name];
+        gsap.to(activePieceObject.value.position, { ...originalPos, duration: 0.5 });
+     }
+     activePieceObject.value = null;
   }
 });
 </script>
