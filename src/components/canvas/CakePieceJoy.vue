@@ -48,7 +48,7 @@ const props = defineProps({
   scale: {type : Array, default : ()=>[1,1,1]},
   rotation: {type : Array, default : ()=>[0,0,0]},
   draco: { type: Boolean, default: false },
-  texturePath: { type: String, default: './textures/strawberry.jpg' }
+  texturePath: { type: String, default: './textures/lemon_glaze.jpg' }
 });
 
 // --- Tùy chỉnh cho miếng "Love" (Gộp logic vào đây) ---
