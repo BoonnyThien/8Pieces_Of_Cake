@@ -61,10 +61,9 @@ const cakeViewRef = ref(null); // Ref để gọi hàm trong CakeView
 
 // --- Xử lý sự kiện ---
 const handlePieceSelected = (pieceData) => {
-  // Khi CakeView báo 1 miếng bánh được chọn, App.vue cập nhật UI 2D
-  console.log('App.vue nhận được data:', pieceData.name);
-  showPieceInfo(pieceData); // Cập nhật UI 2D (ví dụ: hiển thị description)
-};
+  console.log('App.vue nhận được data:', pieceData)
+  console.log('✅ Piece selected in App.vue:', pieceData)
+}
 const triggerCakeSwap = () => {
   // Khi nhấn nút "Ngẫu Nhiên"
   if (cakeViewRef.value) {
