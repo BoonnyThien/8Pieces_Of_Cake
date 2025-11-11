@@ -1,8 +1,9 @@
-# wrangler.toml
-name = "simple-cake-ni"
-compatibility_date = "2023-10-01"
+name = "octa-tastenis"
+compatibility_date = "2024-05-01"
+pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "cake-clicks-db"
-database_id = "feda22a1-5a3e-4243-8daf-64087d7613ed"
+database_name = "cake-clicks-db" # Dùng tên thật
+database_id = "feda22a1-5a3e-4243-8daf-64087d7613ed" # Dùng ID thật từ lệnh 'wrangler d1 list'
+
