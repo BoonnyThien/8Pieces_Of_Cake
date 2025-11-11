@@ -1,7 +1,18 @@
-name = "8pieces-of-cake"
-main = "./functions"
-compatibility_date = "2025-10-24"
+# wrangler.toml
+name = "cake-click-tracker"
+compatibility_date = "2023-10-01"
 
-[vars]
-# Add any environment variables here, for example D1 bindings
-# D1_ACCOUNT_ID = "your-d1-account-id"
+[[d1_databases]]
+binding = "DB"
+database_name = "cake-clicks-db"
+database_id = "YOUR_DATABASE_ID_HERE"
+
+[[migrations]]
+tag = "v1"
+sql = "./db/schema.sql"
+
+[env.production]
+zone_id = "YOUR_ZONE_ID"
+routes = [
+  "yourdomain.com/api/*"
+]

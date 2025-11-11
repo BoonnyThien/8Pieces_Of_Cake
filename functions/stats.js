@@ -1,20 +1,27 @@
-// Serverless function to return click statistics (counts per piece)
+// functions/stats.js
+export async function onRequestGet(context) {
+  const { env } = context
+  
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT piece_id, click_count FROM clicks'
+    ).all()
 
-export default {
-  async fetch(request, env) {
-    try {
-      // Example using D1 binding named DB
-      if (!env.DB) {
-        // Return dummy data in dev
-        return new Response(JSON.stringify({ counts: {} }), { status: 200 })
+    return new Response(
+      JSON.stringify(results || []),
+      { 
+        status: 200, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        } 
       }
-
-      const rows = await env.DB.prepare('SELECT piece_id, COUNT(*) as cnt FROM clicks GROUP BY piece_id').all()
-      const counts = {}
-      for (const r of rows.results) counts[r.piece_id] = r.cnt
-      return new Response(JSON.stringify({ counts }), { status: 200 })
-    } catch (err) {
-      return new Response(JSON.stringify({ error: err.message }), { status: 500 })
-    }
+    )
+  } catch (error) {
+    console.error('Error in stats function:', error)
+    return new Response(
+      JSON.stringify({ error: 'Failed to fetch stats' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
   }
 }

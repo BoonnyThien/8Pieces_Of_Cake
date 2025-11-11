@@ -2,106 +2,115 @@
   <LoadingScreen v-if="isLoading" />
 
   <div v-else>
-
+    <!-- UI chính -->
     <UiOverlay
       v-if="showUi"
-      :greetingText="greetings[currentGreeting]"
-      @changeGreeting="changeGreeting"
-      @swapItems="handleSwapItems" 
-      @changeBackground="handleChangeBackground"
+      :greetingText="currentGreetingText"
+      @changeGreeting="handleEffect"
+      @changeBackground="changeBackground"
     />
+
+    <!-- Nút ẩn/hiện UI -->
     <ToggleUiButton @toggleUi="toggleUiVisibility" />
-    
+
+    <!-- Scene 3D -->
     <ThreeScene :background-color="currentBackgroundColor">
       <Stars />
       <Moon ref="moonRef" />
-        <Suspense>
-          <CakeView ref="cakeViewRef" @piece-selected="handlePieceSelected" />
-          
-          <!-- <TresRaycaster/> -->
-        </Suspense>
+      <Suspense>
+        <CakeView ref="cakeViewRef" @piece-selected="handlePieceSelected" />
+      </Suspense>
     </ThreeScene>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useUI } from './composables/useUI.js';
-import { useThrottledLoop } from './composables/useThrottledLoop.js';
-// Import components
-import LoadingScreen from './components/ui/LoadingScreen.vue';
-import UiOverlay from './components/ui/UiOverlay.vue';
-import Stars from './components/ui/Stars.vue';
-import Moon from './components/canvas/Moon.vue';
-import ThreeScene from './components/ThreeScene.vue';
-import ToggleUiButton from './components/ui/ToggleUiButton.vue';
+import { ref, computed, onMounted } from 'vue'
+import { useUI } from './composables/useUI.js'
+import { useCakeStats } from './composables/useCakeStats.js'
+import { useThrottledLoop } from './composables/useThrottledLoop.js'
 
-// IMPORT VIEW MỚI
-import CakeView from './views/CakeView.vue';
-import TresRaycaster from './components/TresRaycaster.vue';
-// --- Background Color Logic (Tái sử dụng) ---
-const backgroundColors = ref(['#000000', '#121212','#FAFAFA']);
-const currentBgIndex = ref(0);
-const currentBackgroundColor = computed(() => backgroundColors.value[currentBgIndex.value]);
-const handleChangeBackground = () => {
-  currentBgIndex.value = (currentBgIndex.value + 1) % backgroundColors.value.length;
-};
+// --- Components ---
+import LoadingScreen from './components/ui/LoadingScreen.vue'
+import Stars from './components/ui/Stars.vue'
+import Moon from './components/canvas/Moon.vue'
+import ThreeScene from './components/ThreeScene.vue'
+import ToggleUiButton from './components/ui/ToggleUiButton.vue'
+import CakeView from './views/CakeView.vue'
+import UiOverlay from './components/ui/UiOverlay.vue'
 
-// --- UI Logic (Tái sử dụng) ---
-const moonRef = ref(null);
-const isLoading = ref(true);
-const isAnimating = ref(false)
-const showUi = ref(true);
-const toggleUiVisibility = () => showUi.value = !showUi.value;
+// --- Logic ---
+const { 
+  greetings,
+  currentGreeting,
+  triggerParticleEffect,
+  changeGreeting,
+  changeBackground,
+  currentBackgroundColor,
+  initAnimations
+} = useUI()
 
-const { currentGreeting, greetings, changeGreeting, initAnimations } = useUI();
+const { recordClick } = useCakeStats()
+const { onLoop } = useThrottledLoop()
 
-// --- Logic Swap MỚI (sẽ được thay bằng Raycasting sau) ---
-const cakeViewRef = ref(null); // Ref để gọi hàm trong CakeView
+// --- State ---
+const isLoading = ref(true)
+const showUi = ref(true)
+const activePiece = ref(null)
+const cakeViewRef = ref(null)
 
-// --- Xử lý sự kiện ---
-const handlePieceSelected = (pieceData) => {
-  console.log('App.vue nhận được data:', pieceData)
-  console.log('✅ Piece selected in App.vue:', pieceData)
+// --- Hiện / ẩn UI ---
+const toggleUiVisibility = () => (showUi.value = !showUi.value)
+
+// --- Lời chào hiện tại ---
+const pieceGreetings = {
+  'piece-love': '💖 Tình yêu làm thế giới đẹp hơn!',
+  'piece-joy': '😄 Hạnh phúc là điều giản đơn nhất!',
+  'piece-hope': '🌠 Hy vọng là ngọn đèn trong đêm tối!',
+  'piece-faith': '🙏 Niềm tin giúp ta vượt qua mọi thử thách!',
+  'piece-luck': '🍀 May mắn sẽ mỉm cười với bạn!',
+  'piece-passion': '🔥 Đam mê thổi bùng ngọn lửa sáng tạo!',
+  'piece-courage': '🦁 Dũng cảm là sức mạnh vô hình!',
+  'piece-peace': '🕊️ Bình yên bắt đầu từ tâm hồn bạn!'
 }
-const triggerCakeSwap = () => {
-  // Khi nhấn nút "Ngẫu Nhiên"
-  if (cakeViewRef.value) {
-    // Tạm thời reset bánh về vị trí cũ
-    cakeViewRef.value.resetCake(); 
+
+const currentGreetingText = computed(() => {
+  if (activePiece.value?.id) {
+    return pieceGreetings[activePiece.value.id]
   }
-};
+  return greetings.value[currentGreeting.value]
+})
 
-// Hàm này có thể không cần thiết nữa nếu click trực tiếp, 
-// nhưng giữ lại nếu nút "Ngẫu Nhiên" vẫn tồn tại
-const handleSwapItems = () => {
-  console.log("App.vue: Nút Ngẫu Nhiên được nhấn. Sẽ báo cho CakeView...");
-  // Logic này sẽ được chuyển vào CakeView
-};
+// --- Khi chọn miếng bánh ---
+const handlePieceSelected = async (pieceData) => {
+  activePiece.value = pieceData
+  await recordClick(pieceData.id)
+  triggerParticleEffect(pieceData.id)
+  setTimeout(resetPiece, 10000)
+}
 
+// --- Reset ---
+const resetPiece = () => {
+  activePiece.value = null
+  cakeViewRef.value?.resetCake?.()
+}
+
+// --- Hiệu ứng thủ công khi click nút đổi ---
+const handleEffect = () => {
+  if (activePiece.value?.id) triggerParticleEffect(activePiece.value.id)
+  else changeGreeting()
+}
+
+// --- Mount ---
 onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false;
-    console.log("3D Scene loaded");
-  }, 2000);
-});
+  initAnimations()
+  setTimeout(() => (isLoading.value = false), 1200)
+})
 
-const spinnerRotation = ref(0);
-const currentRotation = ref([0, 0, 0]);
-
-const { onLoop } = useThrottledLoop();
-onLoop(({ delta }) => {
-  if (!isLoading.value) { 
-    spinnerRotation.value += delta * 2; 
-
-    if (!isAnimating.value) {
-      currentRotation.value[1] += delta * 0.5; 
-    }
-  }
-});
+// --- Loop animation ---
+onLoop(() => {})
 </script>
 
 <style>
 @import './assets/css/main.css';
-/* @import './assets/css/styles.css'; */ /* Bạn có thể gộp 2 file css này lại */
 </style>
