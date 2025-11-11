@@ -16,6 +16,8 @@ export async function onRequestPost(context) {
     const clientIP = request.headers.get('CF-Connecting-IP') || 
                     request.headers.get('X-Forwarded-For') || 
                     'unknown';
+    const userAgent = request.headers.get('User-Agent') || 'unknown';
+    const country = request.cf?.country || 'unknown';
 
     // Validate pieceId
     const validPieces = [
@@ -29,9 +31,11 @@ export async function onRequestPost(context) {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
+    // 2. Chuẩn bị 2 lệnh SQL
+    const db = env.DB;
 
     // Update click count và lưu IP trong D1
-    const result = await env.DB.prepare(
+    const stmt1 = db.prepare(
       `INSERT INTO clicks (piece_id, click_count, user_ip, last_clicked) 
        VALUES (?, 1, ?, CURRENT_TIMESTAMP)
        ON CONFLICT(piece_id) 
@@ -39,7 +43,16 @@ export async function onRequestPost(context) {
          click_count = click_count + 1,
          user_ip = ?,
          last_clicked = CURRENT_TIMESTAMP`
-    ).bind(pieceId, clientIP, clientIP).run()
+    ).bind(pieceId, clientIP, clientIP); // (pieceId, user_ip, user_ip)
+
+    // Lệnh 2: Ghi log chi tiết cho cú click này
+    const stmt2 = db.prepare(
+      `INSERT INTO click_logs (piece_id, user_ip, user_agent, country) 
+       VALUES (?, ?, ?, ?)`
+    ).bind(pieceId, clientIP, userAgent, country); // (id, ip, agent, country)
+
+    await db.batch([stmt1, stmt2]);
+    
 
     if (result.success) {
       return new Response(

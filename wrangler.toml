@@ -1,18 +1,8 @@
 # wrangler.toml
-name = "cake-click-tracker"
+name = "simple-cake-ni"
 compatibility_date = "2023-10-01"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "cake-clicks-db"
-database_id = "YOUR_DATABASE_ID_HERE"
-
-[[migrations]]
-tag = "v1"
-sql = "./db/schema.sql"
-
-[env.production]
-zone_id = "YOUR_ZONE_ID"
-routes = [
-  "yourdomain.com/api/*"
-]
+database_id = "feda22a1-5a3e-4243-8daf-64087d7613ed"
