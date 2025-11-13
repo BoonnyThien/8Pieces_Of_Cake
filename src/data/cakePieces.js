@@ -88,12 +88,12 @@ export const cakePiecesData = [
     decorPath: null
   },
 
-  // 7️⃣ Kindness – Lòng tốt
+  // 7️⃣ Faith – Lòng tốt
   {
-    id: 'piece-kindness',
-    name: 'Kindness (Lòng tốt)',
+    id: 'piece-faith',
+    name: 'Faith (Lòng tốt)',
     description: 'Sự ấm áp và lòng nhân hậu trong mỗi con người.',
-    componentName: 'CakePieceKindness',
+    componentName: 'CakePieceFaith',
     position: [radius * Math.cos(6 * angleStep), 0, radius * Math.sin(6 * angleStep)],
     rotation: [0, -Math.PI / 2 - 6 * angleStep, 0],
     color1: '#A0522D',

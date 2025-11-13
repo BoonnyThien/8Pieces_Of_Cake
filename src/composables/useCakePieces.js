@@ -1,36 +1,45 @@
 // src/composables/useCakePieces.js
+// (Thay thế cho cả useCakePieces.js và useCakeStats.js cũ)
 import { ref } from 'vue'
-import { CloudflarePieceRepository } from '@/infrastructure/repositories/CloudflarePieceRepository'
-import { RecordPieceClick } from '@/application/use-cases/RecordPieceClick'
 import { cakePiecesData } from '@/data/cakePieces'
 
 export function useCakePieces() {
   const pieces = ref(cakePiecesData)
-  const selectedPieceData = ref(null)
-  
-  // Dependency Injection
-  const pieceRepository = new CloudflarePieceRepository()
-  const recordClickUseCase = new RecordPieceClick(pieceRepository)
 
-  const recordClick = async (pieceId) => {
-    const pieceData = pieces.value.find(p => p.id === pieceId)
-    if (!pieceData) {
-      console.warn('❌ Piece data not found for:', pieceId)
-      return null
+  // Hàm này giờ CHỈ gọi API Log
+  const recordClick = async (pieceId) => { 
+    
+    // 1. Tìm thông tin miếng bánh
+    const pieceData = pieces.value.find(p => p.id === pieceId);
+    const modelName = pieceData ? pieceData.name : pieceId; // Lấy Tên (Name) để log
+
+    console.log(`📝 Logging click for: ${modelName}`);
+
+    // 2. Gọi API Log (đúng đường dẫn)
+    try {
+      const response = await fetch('/api/log', { // <-- SỬA Ở ĐÂY
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: modelName }) // Gửi Tên
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('✅ Log success:', result);
+      return pieceData; // Trả về data
+
+    } catch (err) {
+      console.warn("❌ Log error:", err.message);
+      // Vẫn trả về data để UI không bị gián đoạn
+      return pieceData;
     }
-
-    selectedPieceData.value = pieceData
-    
-    // Use the use case instead of direct implementation
-    await recordClickUseCase.execute(pieceId)
-    
-    // SỬA: Trả về pieceData để sử dụng trong CakeView
-    return pieceData
   }
   
   return {
-    pieces,
-    selectedPieceData,
-    recordClick
+    pieces, 
+    recordClick 
   }
 }

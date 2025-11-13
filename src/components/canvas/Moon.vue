@@ -7,34 +7,39 @@ import {
   ClampToEdgeWrapping, 
   LinearFilter
 } from 'three'
-// ĐÃ XÓA "import { TresCanvas } from '@tresjs/core'"
+
+const emit = defineEmits(['moon-click'])
 
 const moonTexture = new TextureLoader().load('/textures/moon.png', (texture) => {
-  texture.wrapS = texture.wrapT =  ClampToEdgeWrapping
-  texture.minFilter = texture.magFilter =  LinearFilter
+  texture.wrapS = texture.wrapT = ClampToEdgeWrapping
+  texture.minFilter = texture.magFilter = LinearFilter
   texture.repeat.set(0.6, 0.6)
   texture.offset.set(0.2, 0.2)
   texture.needsUpdate = true
 })
 
-const moonRef = ref(null);
-const { onLoop } = useRenderLoop();
+const moonRef = ref(null)
+const { onLoop } = useRenderLoop()
 
-onLoop(({ delta }) => {
+const handleMoonClick = () => {
+  console.log('🌙 Moon clicked - showing instructions')
+  emit('moon-click')
+}
+
+onLoop(({ delta, elapsed }) => {
   if (moonRef.value) {
-    moonRef.value.rotation.y += delta * 0.1; // Tự xoay 0.1 radian/giây
-  }
-});
-onLoop(({ elapsed }) => { // 'elapsed' là tổng thời gian đã trôi qua
-  if (moonRef.value) {
+    moonRef.value.rotation.y += delta * 0.1
     moonRef.value.position.y = 5 + (Math.sin(elapsed * 1.5) * 0.3)
   }
-});
+})
 </script>
 
 <template>
-  <TresGroup ref="moonRef" :position="[-7, 5, -10]">
-    
+  <TresGroup 
+    ref="moonRef" 
+    :position="[-7, 5, -10]"
+    @click="handleMoonClick"
+  >
     <TresMesh>
       <TresSphereGeometry :args="[2, 64, 64]" />
       <TresMeshStandardMaterial 

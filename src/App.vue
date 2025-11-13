@@ -27,7 +27,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUI } from './composables/useUI.js'
-import { useCakeStats } from './composables/useCakeStats.js'
+
 import { useThrottledLoop } from './composables/useThrottledLoop.js'
 
 // --- Components ---
@@ -43,14 +43,14 @@ import UiOverlay from './components/ui/UiOverlay.vue'
 const { 
   greetings,
   currentGreeting,
-  triggerParticleEffect,
+  triggerParticleEffect, 
   changeGreeting,
   changeBackground,
   currentBackgroundColor,
   initAnimations
 } = useUI()
 
-const { recordClick } = useCakeStats()
+
 const { onLoop } = useThrottledLoop()
 
 // --- State ---
@@ -84,7 +84,7 @@ const currentGreetingText = computed(() => {
 // --- Khi chọn miếng bánh ---
 const handlePieceSelected = async (pieceData) => {
   activePiece.value = pieceData
-  await recordClick(pieceData.id)
+
   triggerParticleEffect(pieceData.id)
   setTimeout(resetPiece, 10000)
 }

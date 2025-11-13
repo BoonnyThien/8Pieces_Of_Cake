@@ -10,12 +10,12 @@
       
       <TresMesh :position-y="0" :rotation-x="Math.PI/2" >
         <TresExtrudeGeometry :args="[shape, extrudeSettings1]" />
-        <TresMeshStandardMaterial :color="color1" :roughness="0.9" />
+        <TresMeshStandardMaterial :map="strawberryTexture" :roughness="0.7" />
       </TresMesh>
       
-      <TresMesh :position-y="heightLayer1" :rotation-x="Math.PI/2" >
+      <TresMesh :position-y="heightLayer1+0.1" :rotation-x="Math.PI/2" >
         <TresExtrudeGeometry :args="[shape, extrudeSettings2]" />
-        <TresMeshStandardMaterial :color="color2" :roughness="0.7" />
+        <TresMeshStandardMaterial :map="strawberryTexture" :roughness="0.7" />
       </TresMesh>
 
       <TresMesh :position-y="heightLayer1 + heightLayer2" :rotation-x="Math.PI/2">
@@ -27,9 +27,10 @@
     <Suspense v-if="loveDecorPath">
       <GLTFModel 
         :path="loveDecorPath" 
-        :position="[0.8, 0.8, 0.4]" 
-        :scale="[0.2, 0.2, 0.2]" 
-        :draco="draco" 
+        :position="[-0.5, -0.2, 2.8]" 
+        :scale="[12, 5,10]"
+        :rotation-y="-Math.PI/1.6"
+        :draco="draco"  
       />
     </Suspense>
   
@@ -54,7 +55,8 @@ const props = defineProps({
 // --- Tùy chỉnh cho miếng "Love" (Gộp logic vào đây) ---
 const color1 = '#A0522D';
 const color2 = '#FADADD';
-const loveDecorPath = null; 
+const loveDecorPath = '/models/Luck.glb'; 
+
 
 // Tải texture TRỰC TIẾP bên trong component này
 const { map: strawberryTexture } = await useTexture({map : props.texturePath });

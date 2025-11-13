@@ -27,9 +27,10 @@
     <Suspense v-if="loveDecorPath">
       <GLTFModel 
         :path="loveDecorPath" 
-        :position="[0.8, 0.8, 0.4]" 
-        :scale="[0.2, 0.2, 0.2]" 
-        :draco="draco" 
+        :position="[0.7, -0.2, 0.7]" 
+        :scale="[6.9, 6, 6.8]"
+        :rotation-y="Math.PI/1.06"
+        :draco="draco"  
       />
     </Suspense>
   
@@ -54,7 +55,7 @@ const props = defineProps({
 // --- Tùy chỉnh cho miếng "Love" (Gộp logic vào đây) ---
 const color1 = '#A0522D';
 const color2 = '#FADADD';
-const loveDecorPath = null; 
+const loveDecorPath = '/models/vanil_cake1.glb'; 
 
 // Tải texture TRỰC TIẾP bên trong component này
 const { map: strawberryTexture } = await useTexture({map : props.texturePath });

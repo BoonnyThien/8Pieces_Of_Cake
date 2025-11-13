@@ -1,10 +1,10 @@
 <template>
   <TresCanvas shadows window-size :clear-color="backgroundColor" alpha>
-    <TresPerspectiveCamera :position="[0, 5, 15]" :look-at="[0, 0, 0]" />
+    <TresPerspectiveCamera :position="[0, 7, 12]" :look-at="[0, 0, 0]" />
 
     <TresGroup>
       <TresAmbientLight :intensity="0.5" />
-      <TresDirectionalLight :position="[5, 5, 5]" :intensity="1.5" cast-shadow />
+      <TresDirectionalLight :position="[5, 7, 5]" :intensity="1.5" cast-shadow />
       <OrbitControls v-if="ready" :enable-damping="true" :damping-factor="0.05" />
       
       <slot></slot>

@@ -14,7 +14,7 @@ export function useUI() {
 
   const { triggerParticles } = useParticles()
 
-  // --- Nền theo piece - CẬP NHẬT CHI TIẾT ---
+  // --- Nền theo piece ---
   const pieceBackgrounds = {
     'piece-love': {
       colors: ['#121212', '#ffb6c1', '#e75480'],
@@ -47,33 +47,28 @@ export function useUI() {
     'piece-peace': {
       colors: ['#FAFAFA', '#b3e5fc', '#81d4fa'],
       gradient: 'linear-gradient(135deg, #FAFAFA 0%, #b3e5fc 50%, #81d4fa 100%)'
+    },
+    // THÊM: Hiệu ứng cho moon
+    'moon': {
+      colors: ['#000000', '#1a1a2e', '#16213e'],
+      gradient: 'linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%)'
     }
   }
 
-  // Background mặc định - SỬA: có giá trị mặc định
+  // Background mặc định
   const currentBgIndex = ref(0)
-  const bgColors = ['#000000', '#121212', '#1a1a1a'] // THÊM màu mặc định
+  const bgColors = ['#000000', '#121212', '#faf6f6ff',]
   const currentBackgroundColor = ref(bgColors[currentBgIndex.value])
 
+  
   // Chuyển màu nền mặc định
   const changeBackground = () => {
     currentBgIndex.value = (currentBgIndex.value + 1) % bgColors.length
     currentBackgroundColor.value = bgColors[currentBgIndex.value]
-    
-    // Áp dụng ngay lập tức
     document.body.style.background = currentBackgroundColor.value
   }
 
-  // THÊM: Hàm đổi nền theo piece
-  const changeBackgroundByPiece = (pieceId) => {
-    const pieceBg = pieceBackgrounds[pieceId]
-    if (pieceBg) {
-      document.body.style.background = pieceBg.gradient
-      document.body.style.transition = 'background 1s ease'
-    }
-  }
-
-  // THÊM: Reset nền về mặc định
+  // Reset nền về mặc định
   const resetBackground = () => {
     document.body.style.background = currentBackgroundColor.value
   }
@@ -83,78 +78,115 @@ export function useUI() {
   }
 
   // --- Particle + Emoji effect - CẢI TIẾN ---
-  const triggerParticleEffect = async (pieceId, event = null) => {
-    const mouseX = event?.clientX || window.innerWidth / 2
-    const mouseY = event?.clientY || window.innerHeight / 2
+ const triggerParticleEffect = async (pieceId, event = null) => {
+  console.log('✨ Triggering particles for:', pieceId)
 
-    // Bản đồ emoji và số lượng chi tiết
-    const emojiConfig = {
-      'piece-love': { emoji: '💖', count: 20, size: [20, 30] },
-      'piece-joy': { emoji: '😄', count: 15, size: [24, 32] },
-      'piece-hope': { emoji: '🌠', count: 25, size: [18, 26] },
-      'piece-faith': { emoji: '🙏', count: 12, size: [22, 28] },
-      'piece-luck': { emoji: '🍀', count: 18, size: [20, 28] },
-      'piece-passion': { emoji: '🔥', count: 30, size: [16, 24] },
-      'piece-courage': { emoji: '🦁', count: 16, size: [26, 34] },
-      'piece-peace': { emoji: '🕊️', count: 22, size: [20, 30] }
-    }
-
-    const config = emojiConfig[pieceId] || { emoji: '🎉', count: 15, size: [20, 28] }
-
-    // --- GSAP emoji với hiệu ứng đa dạng ---
-    for (let i = 0; i < config.count; i++) {
-      const el = document.createElement('div')
-      el.textContent = config.emoji
-      el.style.cssText = `
-        position: fixed;
-        left: ${mouseX}px;
-        top: ${mouseY}px;
-        font-size: ${config.size[0] + Math.random() * (config.size[1] - config.size[0])}px;
-        pointer-events: none;
-        z-index: 9999;
-        opacity: 0;
-        filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
-      `
-      document.body.appendChild(el)
-
-      // Hiệu ứng bay khác nhau cho từng piece
-      const animations = {
-        'piece-love': { x: (Math.random() - 0.5) * 300, y: -150 - Math.random() * 200 },
-        'piece-joy': { x: (Math.random() - 0.7) * 400, y: -100 - Math.random() * 150 },
-        'piece-hope': { x: (Math.random() - 0.3) * 250, y: -200 - Math.random() * 250 },
-        'piece-faith': { x: (Math.random() - 0.5) * 200, y: -180 - Math.random() * 180 },
-        'piece-luck': { x: (Math.random() - 0.6) * 350, y: -120 - Math.random() * 170 },
-        'piece-passion': { x: (Math.random() - 0.8) * 500, y: -80 - Math.random() * 120 },
-        'piece-courage': { x: (Math.random() - 0.4) * 280, y: -160 - Math.random() * 190 },
-        'piece-peace': { x: (Math.random() - 0.2) * 180, y: -220 - Math.random() * 200 }
-      }
-
-      const animConfig = animations[pieceId] || animations['piece-love']
-
-      gsap.to(el, {
-        duration: 1.5 + Math.random() * 1.0,
-        x: animConfig.x + (Math.random() - 0.5) * 100,
-        y: animConfig.y + (Math.random() - 0.5) * 50,
-        rotation: Math.random() * 360,
-        opacity: 1,
-        ease: 'power2.out',
-        onComplete: () => {
-          gsap.to(el, { 
-            duration: 0.5, 
-            opacity: 0, 
-            onComplete: () => el.remove() 
-          })
-        }
-      })
-    }
-
-    // --- tsparticles với config chi tiết ---
-    triggerParticles(pieceId, { x: mouseX, y: mouseY })
-
-    // --- Đổi nền theo piece ---
-    changeBackgroundByPiece(pieceId)
+  // 1. Cấu hình Emoji (Dùng mảng để chứa 2 icon trở lên)
+  const emojiConfig = {
+    'piece-love':    { emojis: ['💖', '✨'], count: 40, size: [20, 30] }, // Tim + Lấp lánh
+    'piece-joy':     { emojis: ['😄', '🎉'], count: 30, size: [24, 32] }, // Cười + Pháo
+    'piece-hope':    { emojis: ['🌠', '🌟'], count: 40, size: [18, 26] }, // Sao băng + Sao
+    'piece-faith':   { emojis: ['🙏', '📿'], count: 25, size: [22, 28] },
+    'piece-luck':    { emojis: ['🍀', '💰'], count: 35, size: [20, 28] }, // Cỏ 4 lá + Tiền
+    'piece-passion': { emojis: ['🔥', '⚡'], count: 50, size: [16, 24] }, // Lửa + Sét
+    'piece-courage': { emojis: ['🦁', '🛡️'], count: 30, size: [26, 34] },
+    'piece-peace':   { emojis: ['🕊️', '🍃'], count: 35, size: [20, 30] },
+    'moon':          { emojis: ['🌙', '☁️'], count: 30, size: [22, 30] }  // Trăng + Mây
   }
 
+  const config = emojiConfig[pieceId] || { emojis: ['🎉', '✨'], count: 30, size: [20, 28] }
+
+  // CHỌN KIỂU HIỆU ỨNG: 'rain' (mưa) hoặc 'corners' (4 góc)
+  // Bạn có thể random hoặc fix cứng tùy ý
+  const effectType = Math.random() > 0.5 ? 'rain' : 'corners'; 
+
+  for (let i = 0; i < config.count; i++) {
+    const el = document.createElement('div')
+    
+    // 2. Random chọn 1 trong các icon của mảng
+    const randomEmoji = config.emojis[Math.floor(Math.random() * config.emojis.length)];
+    el.textContent = randomEmoji
+    
+    // Setup style chung
+    el.style.cssText = `
+      position: fixed;
+      font-size: ${config.size[0] + Math.random() * (config.size[1] - config.size[0])}px;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    `
+    document.body.appendChild(el)
+
+    // --- XỬ LÝ VỊ TRÍ (QUAN TRỌNG) ---
+    let startX, startY, targetX, targetY, duration;
+
+    if (effectType === 'rain') {
+      // === HIỆU ỨNG MƯA RƠI ===
+      // Bắt đầu: Random chiều ngang (X), Ở trên đỉnh màn hình (Y = -50)
+      startX = Math.random() * window.innerWidth;
+      startY = -50;
+      
+      // Kết thúc: Rơi xuống đáy màn hình + lệch X một chút (gió thổi)
+      targetX = startX + (Math.random() - 0.5) * 200;
+      targetY = window.innerHeight + 100;
+      
+      duration = 2 + Math.random() * 2; // Rơi từ 2s đến 4s
+
+    } else {
+      // === HIỆU ỨNG 4 GÓC BAY VÀO ===
+      // Chọn ngẫu nhiên 1 trong 4 góc
+      const corners = [
+        { x: 0, y: 0 }, // Góc trên trái
+        { x: window.innerWidth, y: 0 }, // Góc trên phải
+        { x: 0, y: window.innerHeight }, // Góc dưới trái
+        { x: window.innerWidth, y: window.innerHeight } // Góc dưới phải
+      ];
+      const randomCorner = corners[Math.floor(Math.random() * corners.length)];
+      
+      startX = randomCorner.x;
+      startY = randomCorner.y;
+
+      // Kết thúc: Bay về phía tâm màn hình (nhưng phân tán rộng ra một chút)
+      targetX = (window.innerWidth / 2) + (Math.random() - 0.5) * 400;
+      targetY = (window.innerHeight / 2) + (Math.random() - 0.5) * 400;
+      
+      duration = 1.5 + Math.random() * 1;
+    }
+
+    // Gán vị trí bắt đầu
+    el.style.left = `${startX}px`;
+    el.style.top = `${startY}px`;
+
+    // --- GSAP ANIMATION ---
+    gsap.to(el, {
+      duration: duration,
+      x: targetX - startX, // GSAP tính theo delta (khoảng cách di chuyển)
+      y: targetY - startY,
+      rotation: Math.random() * 720, // Xoay nhiều vòng hơn
+      opacity: 1,
+      ease: effectType === 'rain' ? 'power1.in' : 'power2.out', // Mưa thì rơi nhanh dần, Góc thì bay chậm dần
+      
+      // Hiệu ứng phụ: Fade out khi gần xong
+      onStart: () => { gsap.to(el, { opacity: 1, duration: 0.5 }) },
+      onComplete: () => {
+        gsap.to(el, { 
+          duration: 0.5, 
+          opacity: 0, 
+          onComplete: () => el.remove() 
+        })
+      }
+    })
+  }
+
+  // Giữ lại tsparticles nếu muốn kết hợp
+  const mouseX = event?.clientX || window.innerWidth / 2
+  const mouseY = event?.clientY || window.innerHeight / 2
+  triggerParticles(pieceId, { x: mouseX, y: mouseY })
+  
+  // Đổi nền
+  changeBackgroundByPiece(pieceId)
+}
   const initAnimations = () => {
     // Đặt nền mặc định ban đầu
     document.body.style.background = currentBackgroundColor.value
@@ -173,8 +205,7 @@ export function useUI() {
     currentBackgroundColor,
     changeGreeting,
     changeBackground,
-    changeBackgroundByPiece, // THÊM
-    resetBackground, // THÊM
+    resetBackground,
     triggerParticleEffect,
     initAnimations
   }
