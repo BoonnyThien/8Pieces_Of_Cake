@@ -4,58 +4,137 @@ import gsap from 'gsap'
 import { useParticles } from './useParticles'
 
 export function useUI() {
+
+  
   const greetings = ref([
-    "🎉 Chào mừng đến với 8 Pieces of Cake!",
+    // Dạng object với camera settings
+    {
+      text: "🎉 Chào mừng đến với 8 Pieces of Cake!",
+      cameraPosition: [0, 5, 15],
+      cameraLookAt: [0, 0, 0]
+    },
+    // Dạng string đơn giản (không có camera settings)
     "🍰 Mỗi miếng bánh mang một thông điệp ý nghĩa.",
-    "💫 Hãy chọn một miếng để khám phá điều bạn cần!",
-    "✨ Chúc bạn một ngày tuyệt vời!"
+    // Dạng object với camera settings
+    {
+      text: "💫 Hãy chọn một miếng để khám phá điều bạn cần!",
+      cameraPosition: [5, 8, 12],
+      cameraLookAt: [0, 0, 0]
+    },
+    {
+      text: "✨ Chúc bạn một ngày tuyệt vời!",
+      cameraLookAt: [0, 3, 0]
+    },
+    {
+      text: "🌟 Đôi khi, những điều nhỏ bé tạo nên sự khác biệt lớn lao!",
+      cameraPosition: [12, 4, 5],
+      cameraLookAt: [0, 1, 0]
+    },
+    "🌙 Đêm nay trăng sáng thật đẹp phải không?",
+    {
+      text: "🎯 Hãy theo đuổi đam mê của bạn!",
+      cameraPosition: [0, 12, 20]
+    },
+    "💖 Tình yêu là ngôn ngữ không cần lời nói",
+    {
+      text: "🌈 Sau cơn mưa trời lại sáng",
+      cameraPosition: [-12, 8, -5],
+      cameraLookAt: [0, 4, 0]
+    },
+    "🚀 Hãy mơ những giấc mơ lớn!"
   ])
+
   const currentGreeting = ref(0)
 
   const { triggerParticles } = useParticles()
 
-  // --- Nền theo piece ---
-  const pieceBackgrounds = {
-    'piece-love': {
-      colors: ['#121212', '#ffb6c1', '#e75480'],
-      gradient: 'linear-gradient(135deg, #121212 0%, #ffb6c1 50%, #e75480 100%)'
-    },
-    'piece-joy': {
-      colors: ['#121212', '#fff200', '#f9a825'],
-      gradient: 'linear-gradient(135deg, #121212 0%, #fff200 50%, #f9a825 100%)'
-    },
-    'piece-hope': {
-      colors: ['#000000', '#1e3a8a', '#60a5fa'],
-      gradient: 'linear-gradient(135deg, #000000 0%, #1e3a8a 50%, #60a5fa 100%)'
-    },
-    'piece-faith': {
-      colors: ['#FAFAFA', '#f5f5f5', '#a7c7e7'],
-      gradient: 'linear-gradient(135deg, #FAFAFA 0%, #f5f5f5 50%, #a7c7e7 100%)'
-    },
-    'piece-luck': {
-      colors: ['#000000', '#0f5132', '#28a745'],
-      gradient: 'linear-gradient(135deg, #000000 0%, #0f5132 50%, #28a745 100%)'
-    },
-    'piece-passion': {
-      colors: ['#121212', '#ff4500', '#b91c1c'],
-      gradient: 'linear-gradient(135deg, #121212 0%, #ff4500 50%, #b91c1c 100%)'
-    },
-    'piece-courage': {
-      colors: ['#000000', '#f59e0b', '#92400e'],
-      gradient: 'linear-gradient(135deg, #000000 0%, #f59e0b 50%, #92400e 100%)'
-    },
-    'piece-peace': {
-      colors: ['#FAFAFA', '#b3e5fc', '#81d4fa'],
-      gradient: 'linear-gradient(135deg, #FAFAFA 0%, #b3e5fc 50%, #81d4fa 100%)'
-    },
-    // THÊM: Hiệu ứng cho moon
-    'moon': {
-      colors: ['#000000', '#1a1a2e', '#16213e'],
-      gradient: 'linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%)'
+  // --- Hàm helper để lấy text từ greeting ---
+  const getGreetingText = (greeting) => {
+    if (typeof greeting === 'string') {
+      return greeting
+    } else if (greeting && typeof greeting === 'object' && greeting.text) {
+      return greeting.text
+    }
+    return "Chào mừng!"
+  }
+
+  // --- Hàm helper để lấy camera settings từ greeting ---
+  const getCameraSettings = (greeting) => {
+    if (greeting && typeof greeting === 'object') {
+      return {
+        cameraPosition: greeting.cameraPosition,
+        cameraLookAt: greeting.cameraLookAt
+      }
+    }
+    return { cameraPosition: null, cameraLookAt: null }
+  }
+
+  // --- Hàm di chuyển camera - nhận camera từ bên ngoài ---
+  const moveCameraToPosition = (camera, position, lookAt, duration = 2) => {
+    if (!camera) {
+      console.warn('Camera không tồn tại')
+      return
+    }
+    
+    console.log('🔄 Di chuyển camera đến:', { position, lookAt })
+
+    // Animate camera position
+    if (position && Array.isArray(position)) {
+      gsap.to(camera.position, {
+        duration: duration,
+        x: position[0],
+        y: position[1], 
+        z: position[2],
+        ease: "power2.inOut"
+      })
+    }
+
+    // Animate camera lookAt
+    if (lookAt && Array.isArray(lookAt)) {
+      // Tạo một object đích để animate
+      const target = { x: lookAt[0], y: lookAt[1], z: lookAt[2] }
+      
+      gsap.to(camera, {
+        duration: duration,
+        onUpdate: () => {
+          camera.lookAt(target.x, target.y, target.z)
+        }
+      })
     }
   }
 
-  // Background mặc định
+  // --- Hàm chuyển greeting - xử lý cả string và object ---
+  const changeGreeting = (camera = null) => {
+    const oldIndex = currentGreeting.value
+    currentGreeting.value = (currentGreeting.value + 1) % greetings.value.length
+    const greeting = greetings.value[currentGreeting.value]
+    
+    console.log(`🔄 Chuyển greeting: ${oldIndex} -> ${currentGreeting.value}`, greeting)
+
+    // Lấy text và camera settings
+    const greetingText = getGreetingText(greeting)
+    const { cameraPosition, cameraLookAt } = getCameraSettings(greeting)
+
+    console.log('📝 Greeting text:', greetingText)
+    console.log('🎥 Camera settings:', { cameraPosition, cameraLookAt })
+
+    // Chỉ di chuyển camera nếu có cài đặt camera VÀ camera được cung cấp
+    if (camera && (cameraPosition || cameraLookAt)) {
+      moveCameraToPosition(camera, cameraPosition, cameraLookAt)
+    } else if (cameraPosition || cameraLookAt) {
+      console.log('📝 Có camera settings nhưng không có camera instance')
+    } else {
+      console.log('📝 Chỉ thay đổi text, giữ nguyên camera')
+    }
+  }
+
+  // --- Hàm lấy greeting text hiện tại ---
+  const getCurrentGreetingText = () => {
+    const greeting = greetings.value[currentGreeting.value]
+    return getGreetingText(greeting)
+  }
+
+
   const currentBgIndex = ref(0)
   const bgColors = ['#000000', '#121212', '#faf6f6ff',]
   const currentBackgroundColor = ref(bgColors[currentBgIndex.value])
@@ -71,10 +150,6 @@ export function useUI() {
   // Reset nền về mặc định
   const resetBackground = () => {
     document.body.style.background = currentBackgroundColor.value
-  }
-
-  const changeGreeting = () => {
-    currentGreeting.value = (currentGreeting.value + 1) % greetings.value.length
   }
 
   // --- Particle + Emoji effect - CẢI TIẾN ---
@@ -199,14 +274,18 @@ export function useUI() {
     )
   }
 
+
+  
   return {
-    greetings,
+     greetings,
     currentGreeting,
     currentBackgroundColor,
     changeGreeting,
     changeBackground,
     resetBackground,
     triggerParticleEffect,
-    initAnimations
+    initAnimations,
+    moveCameraToPosition,
+    getCurrentGreetingText
   }
 }

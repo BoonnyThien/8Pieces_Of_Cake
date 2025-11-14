@@ -2,6 +2,7 @@
 <template>
   <TresGroup :position="[0, -1, 0]">
     <TableModern :position-y="floor" :scale="[4.5,3,4.5]"/>
+    <Garden :position-y="floor" :scale="[0.3,0.3,0.3]"/>
     <TresMesh :rotation-x="Math.PI" :position-y="floor" :scale="3">
        <TresCylinderGeometry :args="[2.2, 2.2, 0.01, 64]" />
        <TresMeshStandardMaterial color="#faf6f6ff" :metalness="0.1" :roughness="0.9" />
@@ -35,6 +36,7 @@ import CakePieceCourage from '@/components/canvas/CakePieceCourage.vue'
 import CakePiecePeace from '@/components/canvas/CakePiecePeace.vue'
 import CakePieceLove from '@/components/canvas/CakePieceLove.vue'
 import TableModern from '@/components/canvas/TableModern.vue'
+import Garden from '@/components/canvas/Garden.vue'
 // ... import other pieces
 
 let floor = -1.4;

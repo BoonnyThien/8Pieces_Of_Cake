@@ -14,7 +14,7 @@
     <ToggleUiButton @toggleUi="toggleUiVisibility" />
 
     <!-- Scene 3D -->
-    <ThreeScene :background-color="currentBackgroundColor">
+    <ThreeScene ref="threeSceneRef" :background-color="currentBackgroundColor">
       <Stars />
       <Moon ref="moonRef" />
       <Suspense>
@@ -27,7 +27,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUI } from './composables/useUI.js'
-
 import { useThrottledLoop } from './composables/useThrottledLoop.js'
 
 // --- Components ---
@@ -47,9 +46,9 @@ const {
   changeGreeting,
   changeBackground,
   currentBackgroundColor,
-  initAnimations
+  initAnimations,
+  getCurrentGreetingText
 } = useUI()
-
 
 const { onLoop } = useThrottledLoop()
 
@@ -58,6 +57,12 @@ const isLoading = ref(true)
 const showUi = ref(true)
 const activePiece = ref(null)
 const cakeViewRef = ref(null)
+const threeSceneRef = ref(null) // Thêm ref này
+
+// --- Lấy camera từ ThreeScene ---
+const getCamera = () => {
+  return threeSceneRef.value?.camera
+}
 
 // --- Hiện / ẩn UI ---
 const toggleUiVisibility = () => (showUi.value = !showUi.value)
@@ -78,13 +83,12 @@ const currentGreetingText = computed(() => {
   if (activePiece.value?.id) {
     return pieceGreetings[activePiece.value.id]
   }
-  return greetings.value[currentGreeting.value]
+  return getCurrentGreetingText()
 })
 
 // --- Khi chọn miếng bánh ---
 const handlePieceSelected = async (pieceData) => {
   activePiece.value = pieceData
-
   triggerParticleEffect(pieceData.id)
   setTimeout(resetPiece, 10000)
 }
@@ -97,14 +101,25 @@ const resetPiece = () => {
 
 // --- Hiệu ứng thủ công khi click nút đổi ---
 const handleEffect = () => {
-  if (activePiece.value?.id) triggerParticleEffect(activePiece.value.id)
-  else changeGreeting()
+  if (activePiece.value?.id) {
+    triggerParticleEffect(activePiece.value.id)
+  } else {
+    // TRUYỀN CAMERA VÀO ĐÂY
+    changeGreeting(getCamera())
+  }
 }
 
 // --- Mount ---
 onMounted(() => {
   initAnimations()
-  setTimeout(() => (isLoading.value = false), 1200)
+  setTimeout(() => {
+    isLoading.value = false
+    // Kiểm tra camera sau khi mount
+    setTimeout(() => {
+      const camera = getCamera()
+      console.log('📷 Camera sau khi mount:', camera)
+    }, 500)
+  }, 1200)
 })
 
 // --- Loop animation ---
