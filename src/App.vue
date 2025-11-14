@@ -20,6 +20,7 @@
       <Suspense>
         <CakeView ref="cakeViewRef" @piece-selected="handlePieceSelected" />
       </Suspense>
+      <ModelsView/>
     </ThreeScene>
   </div>
 </template>
@@ -37,6 +38,7 @@ import ThreeScene from './components/ThreeScene.vue'
 import ToggleUiButton from './components/ui/ToggleUiButton.vue'
 import CakeView from './views/CakeView.vue'
 import UiOverlay from './components/ui/UiOverlay.vue'
+import ModelsView from './views/ModelsView.vue'
 
 // --- Logic ---
 const { 

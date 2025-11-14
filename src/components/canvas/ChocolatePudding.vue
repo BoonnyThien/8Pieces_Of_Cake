@@ -17,7 +17,7 @@ import * as THREE from 'three'
 
 // --- Props cơ bản ---
 const props = defineProps({
-  Path: { type: String, required: true },
+  Path: { type: String, default: '/models/chocolate_pudding.glb' },
   position: { type: Array, default: () => [0, 0, 0] },
   rotation: { type: Array, default: () => [0, 0, 0] },
   scale: { type: Array, default: () => [1, 1, 1] },

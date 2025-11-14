@@ -1,8 +1,8 @@
 // src/components/ui/Stars.vue
 <template>
   <Stars 
-    :radius="100"  
-    :depth="50" 
+    :radius="10"  
+    :depth="30" 
     :count="5000" 
     :size="0.3" 
     :size-attenuation="true" 

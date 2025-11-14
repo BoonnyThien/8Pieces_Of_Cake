@@ -5,44 +5,149 @@ import { useParticles } from './useParticles'
 
 export function useUI() {
 
-  
-  const greetings = ref([
-    // Dạng object với camera settings
-    {
-      text: "🎉 Chào mừng đến với 8 Pieces of Cake!",
-      cameraPosition: [0, 5, 15],
-      cameraLookAt: [0, 0, 0]
-    },
-    // Dạng string đơn giản (không có camera settings)
-    "🍰 Mỗi miếng bánh mang một thông điệp ý nghĩa.",
-    // Dạng object với camera settings
-    {
-      text: "💫 Hãy chọn một miếng để khám phá điều bạn cần!",
-      cameraPosition: [5, 8, 12],
-      cameraLookAt: [0, 0, 0]
-    },
-    {
-      text: "✨ Chúc bạn một ngày tuyệt vời!",
-      cameraLookAt: [0, 3, 0]
-    },
-    {
-      text: "🌟 Đôi khi, những điều nhỏ bé tạo nên sự khác biệt lớn lao!",
-      cameraPosition: [12, 4, 5],
-      cameraLookAt: [0, 1, 0]
-    },
-    "🌙 Đêm nay trăng sáng thật đẹp phải không?",
-    {
-      text: "🎯 Hãy theo đuổi đam mê của bạn!",
-      cameraPosition: [0, 12, 20]
-    },
-    "💖 Tình yêu là ngôn ngữ không cần lời nói",
-    {
-      text: "🌈 Sau cơn mưa trời lại sáng",
-      cameraPosition: [-12, 8, -5],
-      cameraLookAt: [0, 4, 0]
-    },
-    "🚀 Hãy mơ những giấc mơ lớn!"
-  ])
+
+    const greetings = ref([
+  "81 . Ấn nút /Hiệu ứng/ để đọc Text",
+  "80 . Chào mừng đến với OctaTastenis /Bánh 8 Hương liệu/ ",
+  "79 . Mô hình Cake chính giữa có thể tương tác dc",
+  "78 . Ấn vào từng miếng bánh để xem hiệu ứng ",
+  "77 . Có thể spam núi hiệu ứng trong khi bánh xoay",
+  "76 . Camera tự do tùy biến và sẽ chuyển đổi vài lần ",
+  {
+    text: "75 . Các tính năng không phải lỗi ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 0, 0]
+  },
+  "74 . Các bánh trả về vị trí vẫn đúng chỉ do ",
+  "73 . -> hàm cha thiết lập vòng tròn dẫn tới sai lệch",
+  "72 . Mô hình tải chậm do file đầu vào nặng quá ",
+  "71 . -> đã draco rồi mà vẫn khá nặng",
+
+  // 70 có camera
+  {
+    text: "70 .Nếu có sự delay animation vui lòng ",
+    cameraPosition: [0, 5, -15],      // tự sửa
+    cameraLookAt: [0, 0, 0]
+  },
+
+  "69 . -> đợi",
+  "68 . -> làm mới lại trang",
+  "67 . -> đổi trình duyệt",
+  "66 . -> do có nhiều requests cùng lúc dẫn tới nghẽn",
+  {
+    text: "65 . Đã hết phần giới thiệu ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 10, 20]
+  },
+  "64 . Các vế sau sẽ là phần ...",
+  "63 . ->mang tính ngẫu nhiên hơn",
+  "62 . ->có thể bỏ qua",
+  "61 . ->chỉ để chia sẻ thui",
+
+  // 60 có camera
+  {
+    text: "60 . Lâu đài dc xây lên trên nền cát đó liệu có thể chịu nổi sóng lớn hay sụp đổ từ từ ",
+    cameraPosition: [0, 5, 15],
+    cameraLookAt: [-15, 1,0]
+  },
+
+  "59 . Thất bại trong chuẩn bị cũng có nghĩa là chuẩn bị cho sự thất bại .. Benjamin franklin ",
+  "58 . Đôi khi sự thật nằm ở phía khuất của mặt trăng ",
+  "57 . ... Nhưng không có nghĩa những gì trước mắt là giả dối",
+  "56 . Good New(2025)",
+  {
+    text: "55 . Quyển sách ấy cũng được mở sang trang mới r nhưng đó có phải là lựa chọn đúng  ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 10, -20]
+  },
+  "54 . Có người giống như con diều",
+  "53 . Họ cứ bay lên mãi nếu có người cầm sợi dây",
+  "52 . Họ chưa từng nghĩ người cầm dây cũng có lúc mệt mỏi",
+  "51 . Put Your Head On My Shoulder (2019)",
+
+  // 50 có camera
+  {
+    text: "50 . Cái bóng của ngọn đuốc càng bám chặt vào người cầm nó, thì ánh sáng của nó càng rực rỡ và rõ ràng hơn ",
+    cameraPosition: [0, 5, 15],
+   cameraLookAt: [-15, 1,0]
+  },
+
+  "49 . Tôi sẽ mang bông tuyết xuân từng rơi xuống cánh đồng lúa mạch",
+  "48 . -> đến nơi nỗi buồn của những ai đã run rẩy vì giá rét",
+  "47 . Ta sẽ tán ngẫu về sức mạnh của nỗi buồn , và bước đến nơi nỗi buồn của sự chờ đợi",
+  "46 . Genie, Make a Wish",
+  {
+    text: "45 . Giọng nói chân thật vẫn ở đó, nhưng ta lại thích nghe tiếng vọng được chính mình bóp méo. ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 0, 0]
+  },
+  "44 . Chỉ khi luôn đứng trên vạch xuất phát mới  có tư cách xuất phát",
+  "43 . Điều sau có đúng",
+  "42 . Chẳng qua chỉ là",
+  "41 . -> đổi thứ ta có , lấy thứ ta muốn",
+
+  // 40 có camera
+  {
+    text: "40 . Giọng nói chân thật vẫn ở đó, nhưng ta lại thích nghe tiếng vọng được chính mình bóp méo.",
+    cameraPosition: [0, -15, -15],
+    cameraLookAt: [15, 1,0]
+
+  },
+
+  "39 . Như chú bé chăn cừu, ... nói thật không ai tin",
+  "38 . Anataa",
+  "37 . Gợi ý .. khao khát .. phản ứng .. phần thưởng",
+  "36 . 22",
+  {
+    text: "35 . Tiếng vọng cứ k ngừng trong thinh lặng, ta thì cứ bật những bản nhạc vô nghĩa thật to để át đi tiếng vọng ấy. ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 0, 0]
+  },
+  "34 . Dòng chảy của thời đại cuối cũng không thể cản nổi bước chân",
+  "33 . -> mà để lại dấu ấn trên mỗi người ",
+  "32 . Khu phố nhỏ ",
+  "31 .  Bắc Phượng ",
+
+  // 30 có camera
+  {
+    text: "30 . Chiếc chuông bị đánh khẽ, chỉ tạo ra những âm thanh vô hồn, và ta cứ mãi tạo ra tiếng động để che lấp đi khoảng lặng đáng sợ ấy.",
+    cameraPosition: [15, 5, 0],
+    cameraLookAt: [15, 1,0]
+  },
+
+  "29 . xu hướng internalize (nội hóa)",
+  "28 . Nàng công chúa ngủ trong quan tài pha lê",
+  "27 . ",
+  "26 . ",
+  {
+    text: "25 . Nhật hành nhất thiện ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 0, 0]
+  },
+  "24 . Gia thiện nhi căng bất năng ",
+  "23 . Thiện thư",
+
+  // 22 có camera
+  {
+    text: "22 . Happy Birthday to Me ",
+    cameraPosition: [0, 15, 5],
+    cameraLookAt: [0, 0, 0]
+  },
+
+  // -1 có camera
+  {
+    text: "-1 . AVPD",
+    cameraPosition: [0, 100, 0],
+    cameraLookAt: [0, 100, 0]
+  },
+
+  // -2 chỉ là text
+   {
+    text: "-2 .và DPD ",
+    cameraPosition: [0, 100, 0],
+    cameraLookAt: [0, 100, 0]
+  }
+])
 
   const currentGreeting = ref(0)
 
