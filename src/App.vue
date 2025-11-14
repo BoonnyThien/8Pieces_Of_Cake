@@ -71,14 +71,14 @@ const toggleUiVisibility = () => (showUi.value = !showUi.value)
 
 // --- Lời chào hiện tại ---
 const pieceGreetings = {
-  'piece-love': '💖 Tình yêu làm thế giới đẹp hơn!',
-  'piece-joy': '😄 Hạnh phúc là điều giản đơn nhất!',
-  'piece-hope': '🌠 Hy vọng là ngọn đèn trong đêm tối!',
-  'piece-faith': '🙏 Niềm tin giúp ta vượt qua mọi thử thách!',
-  'piece-luck': '🍀 May mắn sẽ mỉm cười với bạn!',
-  'piece-passion': '🔥 Đam mê thổi bùng ngọn lửa sáng tạo!',
-  'piece-courage': '🦁 Dũng cảm là sức mạnh vô hình!',
-  'piece-peace': '🕊️ Bình yên bắt đầu từ tâm hồn bạn!'
+  'piece-love': '💖 ·−·· −−− ···− · −· ·· ···',
+  'piece-joy': '😄 Vui nhiều thì cùng vui ít!',
+  'piece-hope': '🌠 Hy vọng là ánh sáng đôi khi chợp tắt bất tình lình!',
+  'piece-faith': '🙏 Niềm tin!',
+  'piece-luck': '🍀 May mắn !',
+  'piece-passion': '🔥 Đam mê!',
+  'piece-courage': '🦁 Dũng cảm là sức mạnh vô hình mà cùng tàng hình!',
+  'piece-peace': '🕊️ Bình yên bắt đầu khi chill!'
 }
 
 const currentGreetingText = computed(() => {
